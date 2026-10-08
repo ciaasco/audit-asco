@@ -1,15 +1,1775 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>ASCO Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCO - Audit Management System</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: {
+                            DEFAULT: '#C5A059',
+                            dark: '#A68545',
+                            light: '#DBC086'
+                        },
+                        dark: {
+                            bg: '#0a0a0a',
+                            card: '#141414',
+                            border: '#2a2a2a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body, body * {
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        input, textarea, select, [contenteditable="true"] {
+            -webkit-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #C5A059; }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #2a2a2a;
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            outline: none;
+            border-color: #C5A059;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 1px #C5A059;
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #C5A059;
+            border-radius: 10px;
+        }
+        .nav-link.active {
+            background-color: #C5A059;
+            color: #000000;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        th { background-color: #0f0f0f; border-bottom: 1px solid #2a2a2a; }
+        td { border-bottom: 1px solid #1a1a1a; }
+        tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        select option {
+            background-color: #141414 !important;
+            color: #ffffff !important;
+            padding: 10px;
+        }
+
+        select {
+            color-scheme: dark;
+        }
+
+        select option:hover,
+        select option:focus,
+        select option:checked {
+            background-color: #C5A059 !important;
+            color: #000000 !important;
+        }
+
+        main .bg-dark-card, .fixed.inset-0 .bg-dark-card {
+            background-color: #ffffff !important;
+            border-color: #000000 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        main th, .fixed.inset-0 th {
+            background-color: #C5A059 !important; 
+            color: #000000 !important;
+            font-weight: 700 !important; 
+            border-bottom: 1px solid #000000 !important;
+            letter-spacing: 0.5px;
+        }
+
+        main td, .fixed.inset-0 td {
+            border-bottom: 1px solid #000000 !important;
+        }
+
+        main .bg-dark-bg, .fixed.inset-0 .bg-dark-bg {
+            background-color: #f8fafc !important;
+        }
+
+        main .border-dark-border, .fixed.inset-0 .border-dark-border,
+        main .border-dark-border\/50, .fixed.inset-0 .border-dark-border\/50 {
+            border-color: #000000 !important;
+        }
+
+        main .text-white, .fixed.inset-0 .text-white {
+            color: #0f172a !important; 
+            font-weight: 600 !important; 
+        }
+        
+        main .text-zinc-300, main .text-zinc-400, main .text-zinc-500,
+        .fixed.inset-0 .text-zinc-300, .fixed.inset-0 .text-zinc-400, .fixed.inset-0 .text-zinc-500 {
+            color: #334155 !important; 
+            font-weight: 600 !important; 
+        }
+
+        main tr.hover\:bg-white\/5:hover, .fixed.inset-0 tr.hover\:bg-white\/5:hover {
+            background-color: #f1f5f9 !important;
+        }
+
+        main .glass-input, .fixed.inset-0 .glass-input {
+            background-color: #ffffff !important;
+            border-color: #000000 !important;
+            color: #0f172a !important;
+            font-weight: 600 !important;
+        }
+        
+        main .glass-input:focus, .fixed.inset-0 .glass-input:focus {
+            border-color: #C5A059 !important;
+            box-shadow: 0 0 0 1px #C5A059 !important;
+        }
+        
+        main select option, .fixed.inset-0 select option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            font-weight: 600 !important;
+        }
+        main select, .fixed.inset-0 select {
+            color-scheme: light !important;
+        }
+    </style>
 </head>
-<body>
+<body class="antialiased">
 
-<h1>ASCO Automotive Dashboard</h1>
+<!-- LOGIN VIEW -->
+    <div id="login-view" class="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
+      <div class="absolute inset-0 z-0 pointer-events-none bg-no-repeat bg-cover bg-center" 
+           style="background-image: url('https://lh3.googleusercontent.com/d/1eoCRPRefaXO_NUKAlDibhK8PYM0PHXGs');">
+      </div>
 
-<a href="https://script.google.com/macros/s/AKfycbxOifQCEhyfGabKvJn0eeydBzOYIebB0jQ8D8Y1sN-EP3RK2J65qd7ePz1gXDvqWiDV/exec">
-    Buka Dashboard
-</a>
+        <div class="w-full max-w-md z-10 px-6 mx-auto">
+          <div class="bg-white/10 backdrop-transparent-md border border-white/30 shadow-xl rounded-2xl py-7 px-8">
+            <div class="text-center mb-10">
+              <p class="text-slate-900 font-extrabold text-xs tracking-widest uppercase mb-2">
+                Compliance &amp; Internal Audit Portal
+              </p>
+              <img src="logo asco black.png" alt="ASCO Logo" class="w-56 mx-auto mb-4 drop-shadow-md" onerror="this.src='https://lh3.googleusercontent.com/d/1KxULdsoZTqxzgg4cQRfJO0IDFyET8rBF'">
+              <p class="text-black font-extrabold text-lg tracking-wide">Audit Management System</p>
+            </div>
 
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-slate-900 font-bold text-sm mb-2">Username</label>
+                        <input type="text" id="username" class="w-full bg-white/80 border border-slate-400 rounded-xl px-4 py-3 text-black font-semibold placeholder-slate-500 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold transition-all" placeholder="masukkan username" required>
+                    </div>
+                    <div>
+                        <label class="block text-slate-900 font-bold text-sm mb-2">Password</label>
+                        <input type="password" id="password" class="w-full bg-white/80 border border-slate-400 rounded-xl px-4 py-3 text-black font-semibold placeholder-slate-500 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold transition-all" placeholder="masukkan password" required>
+                    </div>
+                    <div class="pt-4">
+                        <button id="btn-login" type="submit" class="w-full bg-gold hover:bg-yellow-600 text-black font-bold rounded-xl px-4 py-3 transition-colors duration-300 shadow-[0_4px_14px_rgba(197,160,89,0.5)]">
+                            Sign In
+                        </button>
+                    </div>
+                </div>
+            </form>
+          </div>
+        </div>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div id="main-layout" class="hidden min-h-screen bg-dark-bg flex">
+        
+            <aside id="sidebar" class="w-64 bg-black border-r border-dark-border fixed top-0 left-0 h-screen flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+            
+            <div class="p-4 pb-2 border-b border-dark-border/50 text-center">
+                <img src="logo asco black.png" alt="ASCO Logo" class="w-48 mx-auto mb-1 brightness-125 contrast-125 drop-shadow-md" onerror="this.src='https://lh3.googleusercontent.com/d/1KxULdsoZTqxzgg4cQRfJO0IDFyET8rBF'">
+                <p class="text-[10px] text-zinc-200 uppercase tracking-widest font-bold">Compliance & Internal Audit Portal</p>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto p-3 space-y-0.5">
+                <a href="#" onclick="navigate('dashboard')" id="nav-dashboard" class="nav-link active flex items-center gap-3 px-3 py-2.5 text-[13px]">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="navigate('timeline')" id="nav-timeline" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px]">
+                    <i class="fa-regular fa-calendar-alt w-5 text-center"></i>
+                    <span>Timeline Jadwal</span>
+                </a>
+                <a href="#" onclick="navigate('peminjaman')" id="nav-peminjaman" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px]">
+                    <i class="fa-solid fa-hand-holding-hand w-5 text-center"></i>
+                    <span>Peminjaman Dokumen</span>
+                </a>
+                <a href="#" onclick="navigate('arsip')" id="nav-arsip" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px]">
+                    <i class="fa-regular fa-images w-5 text-center"></i>
+                    <span>Arsip Foto Audit</span>
+                </a>
+                <a href="#" onclick="navigate('report-audit')" id="nav-report-audit" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px]">
+                    <i class="fa-solid fa-file-shield w-5 text-center"></i>
+                    <span>Report Audit</span>
+                </a>
+                <a href="#" onclick="navigate('report-komite')" id="nav-report-komite" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px]">
+                    <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
+                    <span>Report Komite</span>
+                </a>
+                <a href="#" onclick="navigate('user-management')" id="nav-user-management" class="nav-link items-center gap-3 px-3 py-2.5 text-[13px] hidden">
+                    <i class="fa-solid fa-users-gear w-5 text-center"></i>
+                    <span>Management User</span>
+                </a>
+            </nav>
+
+            <div class="p-3 pb-6 border-t border-dark-border bg-black">
+                <a href="#" onclick="navigate('settings')" id="nav-settings" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] mb-1">
+                    <i class="fa-solid fa-cog w-5 text-center"></i>
+                    <span>Settings</span>
+                </a>
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-all">
+                    <i class="fa-solid fa-sign-out-alt w-5 text-center"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 ml-0 md:ml-64 p-4 md:p-8 w-full max-h-screen overflow-y-auto bg-slate-50 relative transition-all duration-300">
+            
+            <div class="flex justify-between items-center border border-dark-border p-4 md:p-5 rounded-2xl mb-8" style="background-color: #C5A050 !important;">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" class="md:hidden p-2 bg-black/10 rounded-lg text-black hover:bg-black/20 transition">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-lg md:text-xl font-semibold text-black font-bold" id="page-title">Dashboard</h2>
+                        <p class="text-xs md:text-sm text-black/70 font-semibold" id="page-subtitle">Overview & Summary</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-medium text-white" id="user-display-name">Loading...</p>
+                        <p class="text-xm font-extrabold text-white capitalize" id="user-role-display">Role: Loading</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-dark-border flex items-center justify-center border border-gold">
+                        <i class="fa-solid fa-user text-gold"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="view-section active">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-dark-card border border-dark-border rounded-2xl p-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gold opacity-40 rounded-bl-full pointer-events-none"></div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-zinc-400 text-sm font-medium">Status Audit Cabang</p>
+                                <h3 class="text-3xl font-bold text-white mt-1"><span id="dash-audited-count">0</span><span class="text-lg text-zinc-500 font-normal"> / 20</span></h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-gold">
+                                <i class="fa-solid fa-building-circle-check text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="w-full bg-dark-bg rounded-full h-2 mt-4 border border-dark-border">
+                            <div class="bg-gold h-2 rounded-full" id="dash-audit-progress" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-zinc-500 mt-2">Cabang sudah diaudit tahun ini</p>
+                    </div>
+
+                    <div class="bg-dark-card border border-dark-border rounded-2xl p-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500 opacity-40 rounded-bl-full pointer-events-none"></div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-zinc-400 text-sm font-medium">Jadwal Bulan Ini</p>
+                                <h3 class="text-3xl font-bold text-white mt-1" id="dash-this-month-count">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                <i class="fa-solid fa-calendar-day text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-zinc-500 mt-6">Cabang yang dijadwalkan audit bulan ini</p>
+                    </div>
+
+                    <div class="bg-dark-card border border-dark-border rounded-2xl p-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-red-500 opacity-40 rounded-bl-full pointer-events-none"></div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-zinc-400 text-sm font-medium">Dokumen Belum Kembali</p>
+                                <h3 class="text-3xl font-bold text-white mt-1" id="dash-borrowed-count">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400">
+                                <i class="fa-solid fa-file-circle-exclamation text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-zinc-500 mt-6">SSC & Accounting membutuhkan follow-up</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-dark-card border border-dark-border rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-gold"></i> Timeline Mendatang
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-zinc-400 uppercase bg-dark-bg">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-tl-lg">Cabang</th>
+                                        <th class="px-4 py-3">Bulan</th>
+                                        <th class="px-4 py-3 rounded-tr-lg">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dash-timeline-body" class="text-zinc-300"></tbody>
+                            </table>
+                        </div>
+                        <button onclick="navigate('timeline')" class="w-full mt-4 py-2 border border-dark-border rounded-xl text-sm text-zinc-400 hover:text-gold hover:border-gold transition-colors">
+                            Lihat Semua Jadwal
+                        </button>
+                    </div>
+
+                    <div class="bg-dark-card border border-dark-border rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-file-signature text-gold"></i> Peminjaman Aktif
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-zinc-400 uppercase bg-dark-bg">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-tl-lg">Dokumen</th>
+                                        <th class="px-4 py-3">Peminjam</th>
+                                        <th class="px-4 py-3 rounded-tr-lg">Cabang</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dash-borrowed-body" class="text-zinc-300"></tbody>
+                            </table>
+                        </div>
+                        <button onclick="navigate('peminjaman')" class="w-full mt-4 py-2 border border-dark-border rounded-xl text-sm text-zinc-400 hover:text-gold hover:border-gold transition-colors">
+                            Kelola Peminjaman
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: USER MANAGEMENT -->
+            <div id="view-user-management" class="view-section">
+                <div class="bg-dark-card border border-dark-border rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-white">Management Akses Pengguna</h3>
+                        <button onclick="openAddUserModal()" class="bg-gold text-black px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gold-light transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah User Baru
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-dark-border">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-zinc-400 uppercase bg-dark-bg">
+                                <tr>
+                                    <th class="px-6 py-4">Username</th>
+                                    <th class="px-6 py-4">Role</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Tanggal Dibuat</th>
+                                    <th class="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body" class="text-zinc-300">
+                                <tr><td colspan="5" class="px-6 py-4 text-center">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: TIMELINE -->
+            <div id="view-timeline" class="view-section">
+                <div class="bg-dark-card border border-dark-border rounded-2xl p-6">
+                    <div class="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center gap-4 mb-6">
+                        <h3 class="text-lg font-semibold text-white">Jadwal Audit 1 Tahun</h3>
+                        <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                            <select id="filter-cabang-timeline" onchange="filterTimelineJadwal()" class="glass-input border border-dark-border bg-white text-black font-bold px-3 py-1.5 rounded-md text-sm cursor-pointer outline-none focus:border-gold mr-2">
+                                <option value="all">Semua Cabang</option>
+                                <option value="cabang 01">Cabang 01</option>
+                                <option value="cabang 02">Cabang 02</option>
+                                <option value="cabang 03">Cabang 03</option>
+                                <option value="cabang 04">Cabang 04</option>
+                                <option value="cabang 05">Cabang 05</option>
+                                <option value="cabang 06">Cabang 06</option>
+                                <option value="cabang 07">Cabang 07</option>
+                                <option value="cabang 08">Cabang 08</option>
+                                <option value="cabang 09">Cabang 09</option>
+                                <option value="cabang 10">Cabang 10</option>
+                                <option value="cabang 11">Cabang 11</option>
+                                <option value="cabang 12">Cabang 12</option>
+                                <option value="cabang 13">Cabang 13</option>
+                                <option value="cabang 14">Cabang 14</option>
+                                <option value="cabang 15">Cabang 15</option>
+                                <option value="cabang 16">Cabang 16</option>
+                                <option value="cabang 17">Cabang 17</option>
+                                <option value="cabang 18">Cabang 18</option>
+                                <option value="cabang 19">Cabang 19</option>
+                                <option value="cabang 20">Cabang 20</option>
+                            </select>
+                            <select id="filter-tahun" onchange="loadTimelineData()" class="bg-dark-bg border border-dark-border text-white text-sm rounded-lg px-3 py-2 focus:border-gold focus:outline-none">
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                            </select>
+                            <button onclick="openAddTimelineModal()" class="bg-gold text-black px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gold-light transition">
+                                <i class="fa-solid fa-plus mr-1"></i> Buat Jadwal
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-dark-border">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-zinc-400 uppercase bg-dark-bg">
+                                <tr>
+                                    <th class="px-6 py-4">No</th>
+                                    <th class="px-6 py-4">Nama Cabang</th>
+                                    <th class="px-6 py-4">Periode Bulan</th>
+                                    <th class="px-6 py-4">Auditor PIC</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4 text-center">File Surat Tugas</th>
+                                    <th class="px-6 py-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timeline-table-body" class="text-zinc-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: PEMINJAMAN -->
+            <div id="view-peminjaman" class="view-section">
+                <div class="bg-dark-card border border-dark-border rounded-2xl p-6">
+                    <div class="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 mb-6">
+                        <h3 class="text-lg font-semibold text-white">Histori Peminjaman Dokumen SSC & Accounting</h3>
+                        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
+                            <select id="filter-status-peminjaman" onchange="filterStatusPeminjaman()" class="glass-input border border-dark-border bg-white text-black font-bold px-3 py-1.5 rounded-md text-sm cursor-pointer outline-none focus:border-gold">
+                                <option value="all">Semua Status</option>
+                                <option value="dipinjam">Dipinjam</option>
+                                <option value="dikembalikan">Dikembalikan</option>
+                            </select>
+                            <button onclick="openAddPeminjamanModal()" class="bg-gold text-black px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gold-light transition">
+                                <i class="fa-solid fa-plus mr-1"></i> Form Peminjaman
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-dark-border">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-zinc-400 uppercase bg-dark-bg">
+                                <tr>
+                                    <th class="px-6 py-4">ID Transaksi</th>
+                                    <th class="px-6 py-4">Jenis Dokumen</th>
+                                    <th class="px-6 py-4">Cabang Terkait</th>
+                                    <th class="px-6 py-4">Nama Peminjam</th>
+                                    <th class="px-6 py-4">Tgl Pinjam</th>
+                                    <th class="px-6 py-4">Tgl Kembali</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4 text-center">File Tanda Terima / Tanda Tangan</th>
+                                    <th class="px-6 py-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="peminjaman-table-body" class="text-zinc-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: ARSIP -->
+            <div id="view-arsip" class="view-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white">Galeri Bukti Fisik & Dokumentasi</h3>
+                    <button class="bg-gold text-black px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gold-light transition">
+                        <i class="fa-solid fa-upload mr-1"></i> Upload Foto
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="arsip-grid"></div>
+            </div>
+
+            <!-- VIEW: REPORT AUDIT -->
+            <div id="view-report-audit" class="view-section">
+                <div class="bg-dark-card border border-dark-border rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-white">Laporan Hasil Audit Internal</h3>
+                        <button onclick="openAddReportAuditModal()" class="bg-gold text-black px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gold-light transition">
+                            <i class="fa-solid fa-upload mr-1"></i> Upload Report
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-dark-border">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-zinc-400 uppercase bg-dark-bg">
+                                <tr>
+                                    <th class="px-6 py-4">No Dokumen</th>
+                                    <th class="px-6 py-4">Cabang</th>
+                                    <th class="px-6 py-4">Tgl Upload</th>
+                                    <th class="px-6 py-4">Tgl Closing Audit</th>
+                                    <th class="px-6 py-4 w-1/3">Ringkasan Temuan</th>
+                                    <th class="px-6 py-4 text-center">File Report</th>
+                                    <th class="px-6 py-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-audit-body" class="text-zinc-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: REPORT KOMITE -->
+            <div id="view-report-komite" class="view-section">
+                <div class="bg-dark-card border border-dark-border rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-white">Laporan Komite & Surat Peringatan</h3>
+                        <button class="bg-gold text-black px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gold-light transition">
+                            <i class="fa-solid fa-upload mr-1"></i> Upload Report
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-dark-border">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-zinc-400 uppercase bg-dark-bg">
+                                <tr>
+                                    <th class="px-6 py-4">Cabang</th>
+                                    <th class="px-6 py-4">Tanggal Rapat</th>
+                                    <th class="px-6 py-4 w-1/4">Temuan Mayor</th>
+                                    <th class="px-6 py-4 w-1/4">Rekomendasi / SP</th>
+                                    <th class="px-6 py-4 text-center">File</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-komite-body" class="text-zinc-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: SETTINGS -->
+            <div id="view-settings" class="view-section">
+                <div class="max-w-2xl">
+                    <div class="bg-dark-card border border-dark-border rounded-2xl p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-id-badge text-gold"></i> Informasi Pengguna
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="bg-dark-bg p-4 rounded-xl border border-dark-border">
+                                <p class="text-zinc-500 mb-1">Username</p>
+                                <p class="text-white font-medium" id="setting-username">Loading...</p>
+                            </div>
+                            <div class="bg-dark-bg p-4 rounded-xl border border-dark-border">
+                                <p class="text-zinc-500 mb-1">Level Akses (Role)</p>
+                                <p class="text-black font-medium uppercase" id="setting-role">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-dark-card border border-dark-border rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-lock text-gold"></i> Ganti Password
+                        </h3>
+                        <form onsubmit="changePassword(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-zinc-300 mb-2">Password Saat Ini</label>
+                                <input type="password" id="old-pass" class="w-full glass-input rounded-xl px-4 py-2 text-white" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-zinc-300 mb-2">Password Baru</label>
+                                <input type="password" id="new-pass" class="w-full glass-input rounded-xl px-4 py-2 text-white" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-zinc-300 mb-2">Konfirmasi Password Baru</label>
+                                <input type="password" id="confirm-pass" class="w-full glass-input rounded-xl px-4 py-2 text-white" required>
+                            </div>
+                            <div class="pt-2">
+                                <button type="submit" class="bg-gold hover:bg-gold-light text-black font-semibold rounded-xl px-6 py-2 transition-colors">
+                                    Simpan Perubahan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+<!-- MODAL BUAT JADWAL AUDIT -->
+<div id="modal-add-timeline" class="hidden fixed inset-0 bg-black/80 z-[100] flex justify-center items-center backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="bg-dark-card border border-gold/50 p-6 rounded-2xl w-full max-w-md shadow-2xl my-auto max-h-[90vh] flex flex-col">
+        <h3 class="text-lg font-bold text-white mb-4 shrink-0">Buat Jadwal Audit Baru</h3>
+        <div class="space-y-3 overflow-y-auto pr-1 flex-1 custom-scroll">
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Pilih Cabang</label>
+                <select id="timeline-branch" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white"></select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Periode Bulan</label>
+                <select id="timeline-bulan" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white bg-dark-card">
+                    <option value="Januari">Januari</option>
+                    <option value="Februari">Februari</option>
+                    <option value="Maret">Maret</option>
+                    <option value="April">April</option>
+                    <option value="Mei">Mei</option>
+                    <option value="Juni">Juni</option>
+                    <option value="Juli">Juli</option>
+                    <option value="Agustus">Agustus</option>
+                    <option value="September">September</option>
+                    <option value="Oktober">Oktober</option>
+                    <option value="November">November</option>
+                    <option value="Desember">Desember</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Tahun</label>
+                <select id="timeline-tahun" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Auditor PIC</label>
+                <input type="text" id="timeline-auditor" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white" placeholder="Contoh: Auditor 1 / Nama PIC">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Status</label>
+                <select id="timeline-status" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+                    <option value="Menunggu">Menunggu</option>
+                    <option value="Proses">Proses</option>
+                    <option value="Selesai">Selesai</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Upload Dokumen Surat Tugas</label>
+                <input type="file" id="timeline-file" class="w-full glass-input rounded-xl px-3 py-1.5 text-xs text-zinc-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-black hover:file:bg-gold-light cursor-pointer">
+            </div>
+        </div>
+        <div class="mt-5 pt-3 border-t border-dark-border/50 flex justify-end gap-2 shrink-0">
+            <button onclick="closeAddTimelineModal()" class="px-4 py-2 rounded-xl text-xs border border-dark-border text-zinc-300 hover:bg-white/5 transition">Batal</button>
+            <button onclick="submitTimeline()" class="px-4 py-2 rounded-xl text-xs bg-gold text-black font-semibold hover:bg-gold-light transition shadow-[0_0_15px_rgba(197,160,89,0.2)]">Simpan Jadwal</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDIT JADWAL AUDIT -->
+<div id="modal-edit-timeline" class="hidden fixed inset-0 bg-black/80 z-[100] flex justify-center items-center backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="bg-dark-card border border-gold/50 p-6 rounded-2xl w-full max-w-md shadow-2xl my-auto max-h-[90vh] flex flex-col">
+        <h3 class="text-lg font-bold text-white mb-4 shrink-0">Edit Jadwal Audit</h3>
+        <input type="hidden" id="edit-row">
+        <div class="space-y-3 overflow-y-auto pr-1 flex-1 custom-scroll">
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Pilih Cabang</label>
+                <select id="edit-timeline-branch" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white"></select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Periode Bulan</label>
+                <select id="edit-timeline-bulan" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+                    <option value="Januari">Januari</option>
+                    <option value="Februari">Februari</option>
+                    <option value="Maret">Maret</option>
+                    <option value="April">April</option>
+                    <option value="Mei">Mei</option>
+                    <option value="Juni">Juni</option>
+                    <option value="Juli">Juli</option>
+                    <option value="Agustus">Agustus</option>
+                    <option value="September">September</option>
+                    <option value="Oktober">Oktober</option>
+                    <option value="November">November</option>
+                    <option value="Desember">Desember</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Tahun</label>
+                <select id="edit-timeline-tahun" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Auditor PIC</label>
+                <input type="text" id="edit-timeline-auditor" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white" placeholder="Contoh: Auditor 1 / Nama PIC">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Status</label>
+                <select id="edit-timeline-status" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+                    <option value="Menunggu">Menunggu</option>
+                    <option value="Proses">Proses</option>
+                    <option value="Selesai">Selesai</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Dokumen Lampiran</label>
+                <div id="edit-file-preview" class="mb-2"></div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Ganti/Upload File Baru (Opsional)</label>
+                <input type="file" id="edit-timeline-file" class="w-full glass-input rounded-xl px-3 py-1.5 text-xs text-zinc-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-black hover:file:bg-gold-light cursor-pointer">
+            </div>
+        </div>
+        <div class="mt-5 pt-3 border-t border-dark-border/50 flex justify-end gap-2 shrink-0">
+            <button onclick="closeEditTimelineModal()" class="px-4 py-2 rounded-xl text-xs border border-dark-border text-zinc-300 hover:bg-white/5 transition">Batal</button>
+            <button onclick="submitEditTimeline()" class="px-4 py-2 rounded-xl text-xs bg-gold text-black font-semibold hover:bg-gold-light transition shadow-[0_0_15px_rgba(197,160,89,0.2)]">Simpan Perubahan</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TAMBAH PEMINJAMAN -->
+<div id="modal-add-peminjaman" class="hidden fixed inset-0 bg-black/80 z-[100] flex justify-center items-center backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="bg-dark-card border border-gold/50 p-6 rounded-2xl w-full max-w-md shadow-2xl my-auto max-h-[90vh] flex flex-col">
+        <h3 class="text-lg font-bold text-white mb-4 shrink-0">Form Peminjaman Dokumen</h3>
+        <div class="space-y-3 overflow-y-auto pr-1 flex-1">
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Jenis Dokumen</label>
+                <select id="pinjam-type" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white bg-dark-card">
+                    <option value="SSC" class="bg-[#141414] text-white">SSC</option>
+                    <option value="Accounting" class="bg-[#141414] text-white">Accounting</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Cabang Terkait</label>
+                <select id="pinjam-branch" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white"></select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Nama Peminjam</label>
+                <input type="text" id="pinjam-borrower" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white" placeholder="Masukkan nama peminjam">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Nama PIC Dokumen (Internal)</label>
+                <input type="text" id="pinjam-pic" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white" placeholder="Nama petugas yang memproses">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Tanggal Pinjam</label>
+                <input type="date" id="pinjam-date-start" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Status</label>
+                <select id="pinjam-status" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+                    <option value="Dipinjam">Dipinjam</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Upload Tanda Terima Dokumen</label>
+                <input type="file" id="pinjam-file" class="w-full glass-input rounded-xl px-3 py-1.5 text-xs text-zinc-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-black hover:file:bg-gold-light cursor-pointer">
+            </div>
+        </div>
+        <div class="mt-5 pt-3 border-t border-dark-border/50 flex justify-end gap-2 shrink-0">
+            <button onclick="closeAddPeminjamanModal()" class="px-4 py-2 rounded-xl text-xs border border-dark-border text-zinc-300 hover:bg-white/5 transition">Batal</button>
+            <button onclick="submitPeminjaman()" class="px-4 py-2 rounded-xl text-xs bg-gold text-black font-semibold hover:bg-gold-light transition shadow-[0_0_15px_rgba(197,160,89,0.2)]">Simpan Data</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDIT PEMINJAMAN -->
+<div id="modal-edit-peminjaman" class="hidden fixed inset-0 bg-black/80 z-[100] flex justify-center items-center backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="bg-dark-card border border-gold/50 p-6 rounded-2xl w-full max-w-md shadow-2xl my-auto max-h-[90vh] flex flex-col">
+        <h3 class="text-lg font-bold text-white mb-4 shrink-0">Edit Peminjaman Dokumen</h3>
+        <input type="hidden" id="edit-pinjam-row">
+
+        <div class="space-y-3 overflow-y-auto pr-1 flex-1">
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Jenis Dokumen</label>
+                <select id="edit-pinjam-type" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+                    <option value="SSC">SSC</option>
+                    <option value="Accounting">Accounting</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Cabang Terkait</label>
+                <select id="edit-pinjam-branch" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white"></select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Nama Peminjam</label>
+                <input type="text" id="edit-pinjam-borrower" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Nama PIC Dokumen (Internal)</label>
+                <input type="text" id="edit-pinjam-pic" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white" placeholder="Nama petugas yang memproses">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Tanggal Pinjam</label>
+                <input type="date" id="edit-pinjam-date-start" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Status</label>
+                <select id="edit-pinjam-status" onchange="toggleEditDateKembali()" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+                    <option value="Dipinjam">Dipinjam</option>
+                    <option value="Dikembalikan">Dikembalikan</option>
+                </select>
+            </div>
+
+            <!-- Input Tanggal Kembali, Tanda Tangan, & Upload File Tanda Terima Pengembalian -->
+            <div id="wrapper-edit-pinjam-date-end" class="hidden space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">Tanggal Kembali</label>
+                    <input type="date" id="edit-pinjam-date-end" class="w-full glass-input rounded-xl px-3 py-2 text-sm text-white">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">Tanda Tangan Penerima Dokumen (Saat Kembali)</label>
+                    <div class="border border-dark-border rounded-xl bg-white overflow-hidden relative" style="touch-action: none;">
+                        <canvas id="signature-pad-return" class="w-full h-32 cursor-crosshair"></canvas>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-[10px] text-zinc-500">Tanda tangan pihak internal yang menerima kembali</span>
+                        <button type="button" onclick="clearReturnSignature()" class="text-xs text-red-400 hover:text-red-300 px-2 py-0.5 bg-red-500/10 rounded-lg">
+                            <i class="fa-solid fa-eraser mr-1"></i> Bersihkan
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">Upload File Tanda Terima / Berita Acara (Saat Kembali)</label>
+                    <input type="file" id="edit-pinjam-return-file" class="w-full glass-input rounded-xl px-3 py-1.5 text-xs text-zinc-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-black hover:file:bg-gold-light cursor-pointer">
+                    <span class="text-[10px] text-zinc-500 mt-1 block">Opsional: Upload dokumen fisik atau bukti serah terima tambahan</span>
+                </div>
+            </div>
+
+        <div class="mt-5 pt-3 border-t border-dark-border/50 flex justify-end gap-2 shrink-0">
+            <button onclick="closeEditPeminjamanModal()" class="px-4 py-2 rounded-xl text-xs border border-dark-border text-zinc-300 hover:bg-white/5 transition">Batal</button>
+            <button onclick="submitEditPeminjaman()" class="px-4 py-2 rounded-xl text-xs bg-gold text-black font-semibold hover:bg-gold-light transition shadow-[0_0_15px_rgba(197,160,89,0.2)]">Simpan Perubahan</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TAMBAH USER BARU -->
+<div id="modal-add-user" class="hidden fixed inset-0 bg-black/80 z-[100] flex justify-center items-center backdrop-blur-sm">
+    <div class="bg-dark-card border border-gold/50 p-8 rounded-2xl w-full max-w-md shadow-2xl">
+        <h3 class="text-xl font-bold text-white mb-6">Tambah User Baru</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-zinc-300 mb-2">Username</label>
+                <input type="text" id="new-username" class="w-full glass-input rounded-xl px-4 py-3 text-white" placeholder="Masukkan username">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-zinc-300 mb-2">Password</label>
+                <input type="password" id="new-password" class="w-full glass-input rounded-xl px-4 py-3 text-white" placeholder="Masukkan password">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-zinc-300 mb-2">Role Akses</label>
+                <select id="new-role" class="w-full glass-input rounded-xl px-4 py-3 text-white">
+                    <option value="Admin" class="bg-dark-bg text-white">Admin</option>
+                    <option value="Editor" class="bg-dark-bg text-white">Editor</option>
+                    <option value="Viewer" class="bg-dark-bg text-white">Viewer</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-8 flex justify-end gap-3">
+            <button onclick="closeAddUserModal()" class="px-5 py-2.5 rounded-xl border border-dark-border text-zinc-300 hover:bg-white/5 transition">Batal</button>
+            <button onclick="submitNewUser()" class="px-5 py-2.5 rounded-xl bg-gold text-black font-semibold hover:bg-gold-light transition shadow-[0_0_15px_rgba(197,160,89,0.2)]">Simpan User</button>
+        </div>
+    </div>
+</div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        let currentUser = null;
+        const currentMonthIndex = new Date().getMonth(); 
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+        const pageTitles = {
+            'dashboard': { title: 'Dashboard', sub: 'Overview & Summary' },
+            'timeline': { title: 'Timeline Jadwal Audit', sub: 'Perencanaan Tahunan' },
+            'peminjaman': { title: 'Peminjaman Dokumen', sub: 'Tracking Dokumen SSC & Accounting' },
+            'arsip': { title: 'Arsip Foto Audit', sub: 'Dokumentasi Lapangan' },
+            'report-audit': { title: 'Report Audit', sub: 'Hasil Temuan Lapangan' },
+            'report-komite': { title: 'Report Komite', sub: 'Tindak Lanjut & SP' },
+            'user-management': { title: 'Management User', sub: 'Kelola Hak Akses Pengguna' },
+            'settings': { title: 'Settings', sub: 'Konfigurasi Akun' }
+        };
+
+        const mockBranches = Array.from({ length: 20 }, (_, i) => ({
+            id: i + 1,
+            name: `Cabang ${String(i + 1).padStart(2, '0')}`
+        }));
+
+        window.onload = function() {
+            let savedUser = localStorage.getItem('asco_audit_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                initUIAfterLogin();
+            } else {
+                document.getElementById('login-view').classList.remove('hidden');
+                document.getElementById('main-layout').classList.add('hidden');
+            }
+        };
+
+        function loadReportAuditData() {
+            let tbody = document.getElementById('report-audit-body');
+            if (!tbody) return;
+            tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-zinc-500">Memuat data report audit...</td></tr>`;
+
+            google.script.run.withSuccessHandler(function(data) {
+                tbody.innerHTML = data.length > 0 ? data.map(r => {
+                    let fileDisplay = getFileIconAndBadge(r.fileUrl, r.mimeType);
+                    return `
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4 text-xs font-mono text-zinc-400">${r.docNo}</td>
+                            <td class="px-6 py-4 font-medium text-white">${r.branch}</td>
+                            <td class="px-6 py-4">${r.dateUpload}</td>
+                            <td class="px-6 py-4">${r.dateClosing}</td>
+                            <td class="px-6 py-4 text-zinc-400 text-sm">${r.summary}</td>
+                            <td class="px-6 py-4 text-center">${fileDisplay}</td>
+                            <td class="px-6 py-4 text-right">
+                                <button onclick='openEditReportAuditModal(${JSON.stringify(r)})' class="text-zinc-400 hover:text-gold mx-1" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="deleteReportAuditRow(${r.row}, '${r.docNo}')" class="text-red-400 hover:text-red-300 mx-1" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('') : `<tr><td colspan="7" class="px-6 py-4 text-center text-zinc-500">Belum ada report audit di database.</td></tr>`;
+            }).getReportAuditDataServer();
+        }
+
+        function openAddReportAuditModal() {
+            let branchSelect = document.getElementById('report-audit-branch');
+            if(branchSelect) {
+                branchSelect.innerHTML = mockBranches.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
+            }
+            let today = new Date();
+            let dd = String(today.getDate()).padStart(2, '0');
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            let yyyy = today.getFullYear();
+            document.getElementById('report-audit-date-upload').value = `${dd}/${mm}/${yyyy}`;
+            document.getElementById('report-audit-date-closing').value = today.toISOString().split('T')[0];
+            document.getElementById('report-audit-summary').value = '';
+            document.getElementById('modal-add-report-audit').classList.remove('hidden');
+        }
+
+        function closeAddReportAuditModal() {
+            document.getElementById('modal-add-report-audit').classList.add('hidden');
+        }
+
+        function submitReportAudit() {
+            let fileInput = document.getElementById('report-audit-file');
+            let formData = {
+                branch: document.getElementById('report-audit-branch').value,
+                dateClosing: document.getElementById('report-audit-date-closing').value,
+                summary: document.getElementById('report-audit-summary').value || 'Tidak Ada Temuan'
+            };
+
+            if (fileInput && fileInput.files.length > 0) {
+                let file = fileInput.files[0];
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let base64 = e.target.result.split(',')[1];
+                    let fileData = { base64: base64, mimeType: file.type, filename: file.name };
+                    google.script.run.withSuccessHandler(function(res) {
+                        alert(res.message);
+                        if(res.success) {
+                            closeAddReportAuditModal();
+                            loadReportAuditData();
+                        }
+                    }).saveReportAuditServer(formData, fileData);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                google.script.run.withSuccessHandler(function(res) {
+                    alert(res.message);
+                    if(res.success) {
+                        closeAddReportAuditModal();
+                        loadReportAuditData();
+                    }
+                }).saveReportAuditServer(formData, null);
+            }
+        }
+
+        function openEditReportAuditModal(data) {
+            let branchSelect = document.getElementById('edit-report-audit-branch');
+            if(branchSelect) {
+                branchSelect.innerHTML = mockBranches.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
+            }
+            document.getElementById('edit-report-audit-row').value = data.row;
+            document.getElementById('edit-report-audit-docno').value = data.docNo;
+            document.getElementById('edit-report-audit-branch').value = data.branch;
+            document.getElementById('edit-report-audit-date-upload').value = data.dateUpload;
+            document.getElementById('edit-report-audit-date-closing').value = parseToInputDate(data.dateClosing);
+            document.getElementById('edit-report-audit-summary').value = data.summary;
+            document.getElementById('modal-edit-report-audit').classList.remove('hidden');
+        }
+
+        function closeEditReportAuditModal() {
+            document.getElementById('modal-edit-report-audit').classList.add('hidden');
+        }
+
+        function submitEditReportAudit() {
+            let formData = {
+                row: document.getElementById('edit-report-audit-row').value,
+                branch: document.getElementById('edit-report-audit-branch').value,
+                dateClosing: document.getElementById('edit-report-audit-date-closing').value,
+                summary: document.getElementById('edit-report-audit-summary').value
+            };
+            google.script.run.withSuccessHandler(function(res) {
+                alert(res.message);
+                if(res.success) {
+                    closeEditReportAuditModal();
+                    loadReportAuditData();
+                }
+            }).updateReportAuditServer(formData, null);
+        }
+
+        function deleteReportAuditRow(row, docNo) {
+            if (confirm(`Apakah Anda yakin ingin menghapus dokumen report audit ${docNo}?`)) {
+                google.script.run.withSuccessHandler(function(res) {
+                    alert(res.message);
+                    if(res.success) loadReportAuditData();
+                }).deleteReportAuditServer(row);
+            }
+        }
+
+        function loadPeminjamanData() {
+            google.script.run.withSuccessHandler(function(data) {
+                let activeBorrows = data.filter(p => p.status === 'Dipinjam');
+                if(document.getElementById('dash-borrowed-count')) {
+                    document.getElementById('dash-borrowed-count').innerText = activeBorrows.length;
+                }
+
+                let dashBorrowBody = document.getElementById('dash-borrowed-body');
+                if(dashBorrowBody) {
+                    dashBorrowBody.innerHTML = activeBorrows.length > 0 ? activeBorrows.slice(0, 4).map(p => `
+                        <tr class="border-b border-dark-border/50">
+                            <td class="px-4 py-3"><span class="text-black font-medium">${p.type}</span></td>
+                            <td class="px-4 py-3">${p.borrower}</td>
+                            <td class="px-4 py-3">${p.branch}</td>
+                        </tr>
+                    `).join('') : `<tr><td colspan="3" class="px-4 py-3 text-center text-zinc-500">Tidak ada dokumen yang dipinjam</td></tr>`;
+                }
+
+                let tbody = document.getElementById('peminjaman-table-body');
+                if (tbody) {
+                    tbody.innerHTML = data.length > 0 ? data.map(p => {
+                        let fileDisplay = getFileIconAndBadge(p.fileUrl, p.mimeType);
+                        return `
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 text-xs font-mono text-zinc-400">${p.id}</td>
+                                <td class="px-6 py-4 font-medium text-white">${p.type}</td>
+                                <td class="px-6 py-4">${p.branch}</td>
+                                <td class="px-6 py-4">${p.borrower}</td>
+                                <td class="px-6 py-4">${p.datePinjam}</td>
+                                <td class="px-6 py-4">${p.dateKembali}</td>
+                                <td class="px-6 py-4">${getStatusBadge(p.status)}</td>
+                                <td class="px-6 py-4 text-center">${fileDisplay}</td>
+                                <td class="px-6 py-4 text-right">
+                                    <button onclick='openEditPeminjamanModal(${JSON.stringify(p)})' class="text-zinc-400 hover:text-gold mx-1" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="deletePeminjamanRow(${p.row}, '${p.id}')" class="text-red-400 hover:text-red-300 mx-1" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('') : `<tr><td colspan="9" class="px-6 py-4 text-center text-zinc-500">Belum ada data peminjaman dokumen di database.</td></tr>`;
+                }
+            }).getPeminjamanDataServer();
+        }
+
+        function openAddPeminjamanModal() {
+            let branchSelect = document.getElementById('pinjam-branch');
+            if(branchSelect) {
+                branchSelect.innerHTML = mockBranches.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
+            }
+            document.getElementById('pinjam-date-start').value = new Date().toISOString().split('T')[0];
+            document.getElementById('pinjam-borrower').value = '';
+            document.getElementById('pinjam-pic').value = '';
+            if(document.getElementById('pinjam-file')) document.getElementById('pinjam-file').value = '';
+            document.getElementById('modal-add-peminjaman').classList.remove('hidden');
+        }
+
+        function closeAddPeminjamanModal() {
+            document.getElementById('modal-add-peminjaman').classList.add('hidden');
+        }
+
+        function submitPeminjaman() {
+            let fileInput = document.getElementById('pinjam-file');
+            let formData = {
+                type: document.getElementById('pinjam-type').value,
+                branch: document.getElementById('pinjam-branch').value,
+                borrower: document.getElementById('pinjam-borrower').value || 'Tanpa Nama',
+                pic: document.getElementById('pinjam-pic').value || '-',
+                datePinjam: document.getElementById('pinjam-date-start').value,
+                dateKembali: '-',
+                status: document.getElementById('pinjam-status').value
+            };
+
+            if (fileInput && fileInput.files.length > 0) {
+                let file = fileInput.files[0];
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let base64 = e.target.result.split(',')[1];
+                    let fileData = { base64: base64, mimeType: file.type, filename: file.name };
+                    sendPeminjamanToServer(formData, fileData);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                sendPeminjamanToServer(formData, null);
+            }
+        }
+
+        function sendPeminjamanToServer(formData, fileData) {
+            google.script.run.withSuccessHandler(function(res) {
+                alert(res.message);
+                if(res.success) {
+                    closeAddPeminjamanModal();
+                    loadPeminjamanData();
+                }
+            }).savePeminjamanServer(formData, fileData);
+        }
+
+        function parseToInputDate(dateStr) {
+            if (!dateStr || dateStr === '-') return '';
+            let parts = dateStr.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        function toggleEditDateKembali() {
+            let status = document.getElementById('edit-pinjam-status').value;
+            let wrapperDateEnd = document.getElementById('wrapper-edit-pinjam-date-end');
+            
+            if (status === 'Dikembalikan') {
+                wrapperDateEnd.classList.remove('hidden');
+                if (!document.getElementById('edit-pinjam-date-end').value) {
+                    document.getElementById('edit-pinjam-date-end').value = new Date().toISOString().split('T')[0];
+                }
+                setTimeout(initReturnSignaturePad, 200);
+            } else {
+                wrapperDateEnd.classList.add('hidden');
+                document.getElementById('edit-pinjam-date-end').value = '';
+            }
+        }
+
+        function openEditPeminjamanModal(data) {
+    let branchSelect = document.getElementById('edit-pinjam-branch');
+    if(branchSelect) {
+        branchSelect.innerHTML = mockBranches.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
+    }
+
+    // Pastikan elemen-elemen ini ada di HTML Anda
+    document.getElementById('edit-pinjam-row').value = data.row || '';
+    document.getElementById('edit-pinjam-type').value = data.type || 'SSC';
+    document.getElementById('edit-pinjam-branch').value = data.branch || '';
+    document.getElementById('edit-pinjam-borrower').value = data.borrower || '';
+    document.getElementById('edit-pinjam-pic').value = data.pic || '';
+    document.getElementById('edit-pinjam-date-start').value = parseToInputDate(data.datePinjam);
+    document.getElementById('edit-pinjam-date-end').value = parseToInputDate(data.dateKembali);
+    document.getElementById('edit-pinjam-status').value = data.status || 'Dipinjam';
+
+    // Jalankan pengkondisian untuk memunculkan tanggal kembali, ttd, & file jika statusnya Dikembalikan
+    toggleEditDateKembali();
+
+    let preview = document.getElementById('edit-pinjam-file-preview');
+    if (preview) {
+        if (data.fileUrl) {
+            preview.innerHTML = `<div class="flex items-center gap-2 bg-dark-bg p-2 rounded-lg border border-dark-border"><span class="text-xs text-zinc-400">File Saat Ini:</span> ${getFileIconAndBadge(data.fileUrl, data.mimeType)}</div>`;
+        } else {
+            preview.innerHTML = `<span class="text-xs text-zinc-500 italic">Belum ada dokumen terlampir</span>`;
+        }
+    }
+
+    // Perintah utama untuk membuka modal (menghilangkan kelas 'hidden')
+    let modal = document.getElementById('modal-edit-peminjaman');
+    if (modal) {
+        modal.classList.remove('hidden');
+    } else {
+        console.error("Error: Element #modal-edit-peminjaman tidak ditemukan di HTML!");
+    }
+}
+
+        function closeEditPeminjamanModal() {
+            document.getElementById('modal-edit-peminjaman').classList.add('hidden');
+        }
+
+        function submitEditPeminjaman() {
+            let formData = {
+                row: document.getElementById('edit-pinjam-row').value,
+                type: document.getElementById('edit-pinjam-type').value,
+                branch: document.getElementById('edit-pinjam-branch').value,
+                borrower: document.getElementById('edit-pinjam-borrower').value,
+                pic: document.getElementById('edit-pinjam-pic').value,
+                datePinjam: document.getElementById('edit-pinjam-date-start').value,
+                dateKembali: document.getElementById('edit-pinjam-date-end').value,
+                status: document.getElementById('edit-pinjam-status').value
+            };
+
+            let status = document.getElementById('edit-pinjam-status').value;
+            let returnFileInput = document.getElementById('edit-pinjam-return-file');
+            
+            // Cek apakah user meng-upload file baru saat pengembalian
+            if (status === 'Dikembalikan' && returnFileInput && returnFileInput.files.length > 0) {
+                let file = returnFileInput.files[0];
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let base64 = e.target.result.split(',')[1];
+                    let fileData = { base64: base64, mimeType: file.type, filename: file.name };
+                    
+                    // Kirim dengan file upload pengembalian
+                    sendUpdatePeminjamanRequest(formData, fileData);
+                };
+                reader.readAsDataURL(file);
+            } 
+            // Jika tidak upload file, tapi mengisi tanda tangan canvas
+            else if (status === 'Dikembalikan' && returnCanvas) {
+                let dataUrl = returnCanvas.toDataURL('image/png');
+                if (dataUrl.length > 200) {
+                    let signatureBase64 = dataUrl.split(',')[1];
+                    let fileData = {
+                        base64: signatureBase64,
+                        mimeType: 'image/png',
+                        filename: 'TTD_Kembali_' + formData.row + '.png'
+                    };
+                    sendUpdatePeminjamanRequest(formData, fileData);
+                } else {
+                    sendUpdatePeminjamanRequest(formData, null);
+                }
+            } else {
+                sendUpdatePeminjamanRequest(formData, null);
+            }
+        }
+
+        function sendUpdatePeminjamanRequest(formData, fileData) {
+            google.script.run.withSuccessHandler(function(res) {
+                alert(res.message);
+                if(res.success) {
+                    closeEditPeminjamanModal();
+                    loadPeminjamanData();
+                }
+            }).updatePeminjamanServer(formData, fileData);
+        }
+
+        function deletePeminjamanRow(row, trxId) {
+            if (confirm(`Apakah Anda yakin ingin menghapus transaksi peminjaman ${trxId}?`)) {
+                google.script.run.withSuccessHandler(function(res) {
+                    alert(res.message);
+                    if(res.success) loadPeminjamanData();
+                }).deletePeminjamanServer(row);
+            }
+        }
+
+        function deleteTimelineRow(row, branchName, monthName) {
+            if (confirm(`Apakah Anda yakin ingin menghapus jadwal audit ${branchName} periode ${monthName}?`)) {
+                google.script.run.withSuccessHandler(function(res) {
+                    alert(res.message);
+                    if(res.success) loadTimelineData();
+                }).deleteTimelineServer(row);
+            }
+        }
+
+        function openEditTimelineModal(data) {
+            let branchSelect = document.getElementById('edit-timeline-branch');
+            if(branchSelect) {
+                branchSelect.innerHTML = mockBranches.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
+            }
+
+            document.getElementById('edit-row').value = data.row;
+            document.getElementById('edit-timeline-branch').value = data.name;
+            document.getElementById('edit-timeline-bulan').value = data.bulan;
+            document.getElementById('edit-timeline-tahun').value = data.tahun;
+            document.getElementById('edit-timeline-auditor').value = data.auditor;
+            document.getElementById('edit-timeline-status').value = data.status;
+
+            let filePreviewDiv = document.getElementById('edit-file-preview');
+            if (data.fileUrl) {
+                let badge = getFileIconAndBadge(data.fileUrl, data.mimeType);
+                filePreviewDiv.innerHTML = `<div class="flex items-center gap-2 bg-dark-bg p-2 rounded-lg border border-dark-border"><span class="text-xs text-zinc-400">File Saat Ini:</span> ${badge}</div>`;
+            } else {
+                filePreviewDiv.innerHTML = `<span class="text-xs text-zinc-500 italic">Belum ada dokumen terlampir</span>`;
+            }
+
+            document.getElementById('edit-timeline-file').value = '';
+            document.getElementById('modal-edit-timeline').classList.remove('hidden');
+        }
+
+        function submitEditTimeline() {
+            let fileInput = document.getElementById('edit-timeline-file');
+            let formData = {
+                row: document.getElementById('edit-row').value,
+                name: document.getElementById('edit-timeline-branch').value,
+                bulan: document.getElementById('edit-timeline-bulan').value,
+                tahun: document.getElementById('edit-timeline-tahun').value,
+                auditor: document.getElementById('edit-timeline-auditor').value || 'Belum Ditentukan',
+                status: document.getElementById('edit-timeline-status').value
+            };
+
+            if (fileInput && fileInput.files.length > 0) {
+                let file = fileInput.files[0];
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let base64 = e.target.result.split(',')[1];
+                    let fileData = { base64: base64, mimeType: file.type, filename: file.name };
+                    google.script.run.withSuccessHandler(function(res) {
+                        alert(res.message);
+                        if(res.success) {
+                            closeEditTimelineModal();
+                            loadTimelineData();
+                        }
+                    }).updateTimelineServer(formData, fileData);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                google.script.run.withSuccessHandler(function(res) {
+                    alert(res.message);
+                    if(res.success) {
+                        closeEditTimelineModal();
+                        loadTimelineData();
+                    }
+                }).updateTimelineServer(formData, null);
+            }
+        }
+
+        function closeEditTimelineModal() {
+            document.getElementById('modal-edit-timeline').classList.add('hidden');
+        }
+
+        function getFileIconAndBadge(fileUrl, mimeType) {
+            if (!fileUrl) return `<span class="text-zinc-600 text-xs font-bold">-</span>`;
+            let iconClass = "fa-solid fa-file-lines";
+            let colorClass = "text-white bg-zinc-600 border-black";
+            let label = "File";
+
+            if (mimeType.includes("pdf")) {
+                iconClass = "fa-solid fa-file-pdf";
+                colorClass = "text-white bg-red-600 border-black";
+                label = "PDF";
+            } else if (mimeType.includes("sheet") || mimeType.includes("excel") || mimeType.includes("csv")) {
+                iconClass = "fa-solid fa-file-excel";
+                colorClass = "text-white bg-green-600 border-black";
+                label = "Excel";
+            } else if (mimeType.includes("word") || mimeType.includes("document")) {
+                iconClass = "fa-solid fa-file-word";
+                colorClass = "text-white bg-blue-600 border-black";
+                label = "Word";
+            } else if (mimeType.includes("image")) {
+                iconClass = "fa-solid fa-file-image";
+                colorClass = "text-black bg-gold border-black";
+                label = "Foto";
+            }
+
+            return `
+                <a href="${fileUrl}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-bold transition hover:scale-105 ${colorClass}" title="Klik untuk membuka file">
+                    <i class="${iconClass}"></i> <span class="text-xs">${label}</span>
+                </a>
+            `;
+        }
+
+        function loadTimelineData() {
+            document.getElementById('timeline-table-body').innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-zinc-500">Memuat data dari database...</td></tr>`;
+
+            google.script.run.withSuccessHandler(function(data) {
+                let selectedTahun = document.getElementById('filter-tahun').value;
+                let filtered = data.filter(item => String(item.tahun) === String(selectedTahun));
+
+                let totalCabang = 20;
+                let sudahAudit = filtered.filter(item => item.status === 'Selesai').length;
+                if(document.getElementById('dash-audited-count')) {
+                    document.getElementById('dash-audited-count').innerText = sudahAudit;
+                    document.getElementById('dash-audit-progress').style.width = `${(sudahAudit / totalCabang) * 100}%`;
+                }
+
+                let currentMonthName = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][new Date().getMonth()];
+                let thisMonthCount = filtered.filter(item => item.bulan === currentMonthName).length;
+                if(document.getElementById('dash-this-month-count')) {
+                    document.getElementById('dash-this-month-count').innerText = thisMonthCount;
+                }
+
+                let upcoming = filtered.filter(item => item.status !== 'Selesai').slice(0, 4);
+                let dashTimelineBody = document.getElementById('dash-timeline-body');
+                if(dashTimelineBody) {
+                    dashTimelineBody.innerHTML = upcoming.length > 0 ? upcoming.map(b => `
+                        <tr class="border-b border-dark-border/50">
+                            <td class="px-4 py-3 font-medium">${b.name}</td>
+                            <td class="px-4 py-3">${b.bulan}</td>
+                            <td class="px-4 py-3">${getStatusBadge(b.status)}</td>
+                        </tr>
+                    `).join('') : `<tr><td colspan="3" class="px-4 py-3 text-center text-zinc-500">Belum ada jadwal mendatang di database</td></tr>`;
+                }
+
+                let tbody = document.getElementById('timeline-table-body');
+                if(tbody) {
+                    tbody.innerHTML = filtered.length > 0 ? filtered.map((b, index) => {
+                        let fileDisplay = getFileIconAndBadge(b.fileUrl, b.mimeType);
+                        return `
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4">${index + 1}</td>
+                                <td class="px-6 py-4 font-medium text-white">${b.name}</td>
+                                <td class="px-6 py-4">${b.bulan} ${b.tahun}</td>
+                                <td class="px-6 py-4">${b.auditor}</td>
+                                <td class="px-6 py-4">${getStatusBadge(b.status)}</td>
+                                <td class="px-6 py-4 text-center">${fileDisplay}</td>
+                                <td class="px-6 py-4 text-right">
+                                    <button onclick='openEditTimelineModal(${JSON.stringify(b)})' class="text-zinc-400 hover:text-gold mx-1" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="deleteTimelineRow(${b.row}, '${b.name}', '${b.bulan}')" class="text-red-400 hover:text-red-300 mx-1" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('') : `<tr><td colspan="7" class="px-6 py-4 text-center text-zinc-500">Belum ada jadwal audit di database untuk tahun ${selectedTahun}.</td></tr>`;
+                }
+            }).getTimelineDataServer();
+        }
+
+        function openAddTimelineModal() {
+            let branchSelect = document.getElementById('timeline-branch');
+            if(branchSelect) {
+                branchSelect.innerHTML = mockBranches.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
+            }
+            document.getElementById('modal-add-timeline').classList.remove('hidden');
+        }
+
+        function closeAddTimelineModal() {
+            document.getElementById('modal-add-timeline').classList.add('hidden');
+        }
+
+        function submitTimeline() {
+            let fileInput = document.getElementById('timeline-file');
+            let formData = {
+                name: document.getElementById('timeline-branch').value,
+                bulan: document.getElementById('timeline-bulan').value,
+                tahun: document.getElementById('timeline-tahun').value,
+                auditor: document.getElementById('timeline-auditor').value || 'Belum Ditentukan',
+                status: document.getElementById('timeline-status').value
+            };
+
+            if (fileInput && fileInput.files.length > 0) {
+                let file = fileInput.files[0];
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let base64 = e.target.result.split(',')[1];
+                    let fileData = { base64: base64, mimeType: file.type, filename: file.name };
+                    sendDataToServer(formData, fileData);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                sendDataToServer(formData, null);
+            }
+        }
+
+        function sendDataToServer(formData, fileData) {
+            google.script.run.withSuccessHandler(function(res) {
+                alert(res.message);
+                if(res.success) {
+                    closeAddTimelineModal();
+                    loadTimelineData();
+                    document.getElementById('timeline-auditor').value = '';
+                    if(document.getElementById('timeline-file')) document.getElementById('timeline-file').value = '';
+                }
+            }).saveTimelineServerWithFile(formData, fileData);
+        }
+
+        const mockReportAudit = [
+            { id: 'RA/26/001', branch: 'Cabang 01', date: '2026-02-15', temuan: 'Selisih kas kecil Rp 50.000, dokumen pajak belum diarsip urut tanggal.' }
+        ];
+
+        const mockReportKomite = [
+            { branch: 'Cabang 01', date: '2026-02-28', temuan: 'Kelalaian pengarsipan pajak rutin', rekomendasi: 'SP 1 untuk PIC Finance Cabang.' }
+        ];
+
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'Selesai': return `<span class="bg-green-600 text-white border border-black px-2 py-1 rounded-md text-xs font-bold">Selesai</span>`;
+                case 'Proses': return `<span class="bg-blue-600 text-white border border-black px-2 py-1 rounded-md text-xs font-bold">Proses</span>`;
+                case 'Menunggu': return `<span class="bg-zinc-500 text-white border border-black px-2 py-1 rounded-md text-xs font-bold">Menunggu</span>`;
+                case 'Dipinjam': return `<span class="bg-red-600 text-white border border-black px-2 py-1 rounded-md text-xs font-bold">Dipinjam</span>`;
+                case 'Dikembalikan': return `<span class="bg-green-600 text-white border border-black px-2 py-1 rounded-md text-xs font-bold">Dikembalikan</span>`;
+                default: return `<span class="bg-zinc-200 text-black border border-black px-2 py-1 rounded-md text-xs font-bold">${status}</span>`;
+            }
+        }
+
+        function renderAllData() {
+            const auditedCount = mockBranches.filter(b => b.status === 'Selesai').length;
+            document.getElementById('dash-audited-count').innerText = auditedCount;
+            document.getElementById('dash-audit-progress').style.width = `${(auditedCount/20)*100}%`;
+
+            loadTimelineData();
+            loadPeminjamanData();
+            loadReportAuditData();
+
+            document.getElementById('arsip-grid').innerHTML = mockBranches.map(b => `
+                <div class="bg-dark-card border border-dark-border p-4 rounded-2xl hover:border-gold transition-all cursor-pointer group text-center">
+                    <div class="text-gold opacity-80 group-hover:opacity-100 text-5xl mb-3">
+                        <i class="fa-solid fa-folder-closed group-hover:hidden"></i>
+                        <i class="fa-solid fa-folder-open hidden group-hover:inline-block"></i>
+                    </div>
+                    <h4 class="text-white font-medium text-sm mb-1">${b.name}</h4>
+                    <p class="text-xs text-zinc-500">0 Foto</p>
+                </div>
+            `).join('');
+        }
+
+        function navigate(viewId) {
+            if (viewId === 'user-management' && (!currentUser || currentUser.role !== 'Admin')) {
+                alert('Akses ditolak! Halaman ini khusus Admin.');
+                return;
+            }
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${viewId}`).classList.add('active');
+
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+
+            document.getElementById('page-title').innerText = pageTitles[viewId].title;
+            document.getElementById('page-subtitle').innerText = pageTitles[viewId].sub;
+
+            if(viewId === 'user-management') loadUsersTable();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const btn = document.getElementById('btn-login');
+            
+            btn.innerText = 'Memeriksa...';
+            btn.disabled = true;
+
+            google.script.run.withSuccessHandler(function(res) {
+                btn.innerText = 'Sign In';
+                btn.disabled = false;
+                if(res.success) {
+                    currentUser = res.user;
+                    localStorage.setItem('asco_audit_user', JSON.stringify(currentUser));
+                    initUIAfterLogin();
+                } else {
+                    alert(res.message);
+                }
+            }).prosesLogin(user, pass);
+        }
+
+        function initUIAfterLogin() {
+            document.getElementById('user-display-name').innerText = currentUser.username;
+            document.getElementById('user-role-display').innerText = `Role: ${currentUser.role}`;
+            document.getElementById('setting-username').innerText = currentUser.username;
+            document.getElementById('setting-role').innerText = currentUser.role;
+
+            const navUserMgmt = document.getElementById('nav-user-management');
+            if(currentUser.role === 'Admin') {
+                navUserMgmt.classList.remove('hidden');
+                navUserMgmt.classList.add('flex');
+            } else {
+                navUserMgmt.classList.add('hidden');
+                navUserMgmt.classList.remove('flex');
+            }
+
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('main-layout').classList.remove('hidden');
+            
+            renderAllData(); 
+            navigate('dashboard');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('asco_audit_user'); 
+            document.getElementById('main-layout').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+        }
+
+        function changePassword(e) {
+            e.preventDefault();
+            const oldPass = document.getElementById('old-pass').value;
+            const newPass = document.getElementById('new-pass').value;
+            const confirmPass = document.getElementById('confirm-pass').value;
+
+            if (newPass !== confirmPass) {
+                alert("Password baru dan konfirmasi password tidak cocok!");
+                return;
+            }
+
+            google.script.run.withSuccessHandler(function(res) {
+                if(res.success) {
+                    alert('Password berhasil diperbarui!');
+                    e.target.reset();
+                } else {
+                    alert(res.message);
+                }
+            }).changePassword(currentUser.username, oldPass, newPass);
+        }
+
+        function loadUsersTable() {
+            document.getElementById('user-table-body').innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center">Loading data...</td></tr>';
+            google.script.run.withSuccessHandler(function(users) {
+                let tbody = document.getElementById('user-table-body');
+                tbody.innerHTML = '';
+                users.forEach(function(u) {
+                    let roleBadge = u.role === 'Admin' ? 
+                        '<span class="bg-gold text-black border border-black px-2 py-1 rounded text-xs font-extrabold">Admin</span>' : 
+                        `<span class="bg-slate-200 text-black border border-black px-2 py-1 rounded text-xs font-extrabold">${u.role}</span>`;
+                        
+                    let tr = document.createElement('tr');
+                    tr.className = 'border-b border-dark-border/50 hover:bg-white/5 transition-colors';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 font-medium text-white">${u.username}</td>
+                        <td class="px-6 py-4">${roleBadge}</td>
+                        <td class="px-6 py-4 text-green-500 font-bold text-xs">${u.status}</td>
+                        <td class="px-6 py-4 text-xs text-zinc-400">${u.createdAt}</td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="deleteUser(${u.row})" class="text-red-400 font-bold hover:text-red-500 bg-red-400/10 hover:bg-red-400/20 px-3 py-1.5 rounded-lg text-xs transition">Hapus</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }).getAllUsers();
+        }
+
+        function openAddUserModal() { document.getElementById('modal-add-user').classList.remove('hidden'); }
+        function closeAddUserModal() { document.getElementById('modal-add-user').classList.add('hidden'); }
+
+        function submitNewUser() {
+            let username = document.getElementById('new-username').value;
+            let password = document.getElementById('new-password').value;
+            let role = document.getElementById('new-role').value;
+
+            if(!username || !password) {
+                alert('Username dan password wajib diisi!');
+                return;
+            }
+
+            google.script.run.withSuccessHandler(function(res) {
+                alert(res.message);
+                if(res.success) {
+                    closeAddUserModal();
+                    loadUsersTable(); 
+                    document.getElementById('new-username').value = '';
+                    document.getElementById('new-password').value = '';
+                }
+            }).createUserServer(username, password, role);
+        }
+
+        function deleteUser(row) {
+            if(confirm('Yakin ingin menghapus user ini?')) {
+                google.script.run.withSuccessHandler(function(res) {
+                    alert(res.message);
+                    loadUsersTable();
+                }).deleteUserServer(row);
+            }
+        }
+
+        function filterTimelineJadwal() {
+            let filterValue = document.getElementById('filter-cabang-timeline').value.toLowerCase();
+            let tbody = document.getElementById('timeline-table-body');
+            if (!tbody) return;
+            let rows = tbody.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                let tdCabang = rows[i].getElementsByTagName('td')[1]; 
+                if (tdCabang) {
+                    let namaCabang = tdCabang.textContent || tdCabang.innerText;
+                    if (filterValue === "all" || namaCabang.toLowerCase().includes(filterValue)) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function filterStatusPeminjaman() {
+            let filterValue = document.getElementById('filter-status-peminjaman').value.toLowerCase();
+            let tbody = document.getElementById('peminjaman-table-body');
+            if (!tbody) return;
+            let rows = tbody.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                let tdStatus = rows[i].getElementsByTagName('td')[6]; 
+                if (tdStatus) {
+                    let teksStatus = tdStatus.textContent || tdStatus.innerText;
+                    if (filterValue === "all" || teksStatus.toLowerCase().includes(filterValue)) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if(sidebar) sidebar.classList.toggle('-translate-x-full');
+        }
+
+        document.querySelectorAll('#sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) { 
+                    const sidebar = document.getElementById('sidebar');
+                    if(sidebar) sidebar.classList.add('-translate-x-full');
+                }
+            });
+        });
+
+        // Script Canvas Tanda Tangan Pengembalian
+        let returnCanvas, returnCtx, isReturnDrawing = false;
+
+        function initReturnSignaturePad() {
+            returnCanvas = document.getElementById('signature-pad-return');
+            if (!returnCanvas) return;
+            returnCtx = returnCanvas.getContext('2d');
+            
+            returnCanvas.width = returnCanvas.offsetWidth;
+            returnCanvas.height = returnCanvas.offsetHeight;
+            
+            returnCtx.strokeStyle = "#000000";
+            returnCtx.lineWidth = 2;
+            returnCtx.lineCap = "round";
+
+            returnCanvas.onmousedown = startReturnDraw;
+            returnCanvas.onmousemove = drawingReturn;
+            returnCanvas.onmouseup = stopReturnDraw;
+            returnCanvas.onmouseleave = stopReturnDraw;
+
+            returnCanvas.ontouchstart = (e) => { startReturnDraw(e.touches[0]); e.preventDefault(); };
+            returnCanvas.ontouchmove = (e) => { drawingReturn(e.touches[0]); e.preventDefault(); };
+            returnCanvas.ontouchend = stopReturnDraw;
+        }
+
+        function startReturnDraw(e) {
+            isReturnDrawing = true;
+            returnCtx.beginPath();
+            let rect = returnCanvas.getBoundingClientRect();
+            returnCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function drawingReturn(e) {
+            if (!isReturnDrawing) return;
+            let rect = returnCanvas.getBoundingClientRect();
+            returnCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            returnCtx.stroke();
+        }
+
+        function stopReturnDraw() {
+            isReturnDrawing = false;
+        }
+
+        function clearReturnSignature() {
+            if (returnCtx && returnCanvas) {
+                returnCtx.clearRect(0, 0, returnCanvas.width, returnCanvas.height);
+            }
+        }
+    </script>
 </body>
 </html>
