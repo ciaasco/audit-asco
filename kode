@@ -1,0 +1,551 @@
+// Konstanta Nama Sheet Database
+const SHEET_USERS = 'Users';
+const SHEET_AUDIT = 'Timeline_Audit';
+const SHEET_DOKUMEN = 'Peminjaman_Dokumen';
+
+// ==========================================
+// 1. FUNGSI UTAMA (TAMPILAN WEB)
+// ==========================================
+
+function doGet(e) {
+  var template = HtmlService.createTemplateFromFile('Index');
+  return template.evaluate()
+    .setTitle('ASCO Automotive - Audit System')
+    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+// ==========================================
+// 2. KEAMANAN & HASH PASSWORD
+// ==========================================
+
+function hashPassword(password) {
+  var signature = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, password);
+  var hexString = signature.map(function(byte) {
+      var v = (byte < 0) ? 256 + byte : byte;
+      return ("0" + v.toString(16)).slice(-2);
+  }).join("");
+  return hexString;
+}
+
+// ==========================================
+// 3. SETUP DATABASE & PEMBUATAN USER 
+// ==========================================
+
+function setupDatabase() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetUsers = ss.getSheetByName(SHEET_USERS);
+  
+  if (!sheetUsers) {
+    sheetUsers = ss.insertSheet(SHEET_USERS);
+    sheetUsers.appendRow(['Username', 'Password (Hash)', 'Role', 'Status', 'Tanggal Dibuat']);
+    sheetUsers.setFrozenRows(1); 
+    createUserServer('admin', 'password123', 'Admin');
+    Logger.log("Database berhasil dibuat. User admin default telah ditambahkan.");
+  } else {
+    Logger.log("Database Users sudah ada.");
+  }
+}
+
+function createUserServer(username, password, role) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_USERS);
+  
+  if (!sheet) return { success: false, message: 'Tabel Users belum dibuat!' };
+
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0].toLowerCase() === username.toLowerCase()) {
+      return { success: false, message: 'Username sudah terdaftar! Silakan gunakan username lain.' };
+    }
+  }
+
+  var hashedPassword = hashPassword(password);
+  var timestamp = new Date();
+  
+  sheet.appendRow([username, hashedPassword, role, 'Active', timestamp]);
+  return { success: true, message: 'User ' + username + ' berhasil dibuat dengan role ' + role };
+}
+
+// ==========================================
+// 4. AUTENTIKASI (LOGIN & GANTI PASSWORD)
+// ==========================================
+
+function prosesLogin(username, password) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_USERS);
+  if (!sheet) return { success: false, message: 'Database belum siap.' };
+  
+  var data = sheet.getDataRange().getValues();
+  var hashedPass = hashPassword(password);
+  
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === username && data[i][1] === hashedPass) {
+      if (data[i][3] !== 'Active') return { success: false, message: 'Akun Anda tidak aktif.' };
+      return {
+        success: true,
+        user: { username: data[i][0], role: data[i][2] }
+      };
+    }
+  }
+  return { success: false, message: 'Username atau password salah!' };
+}
+
+function changePassword(username, oldPassword, newPassword) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_USERS);
+  var data = sheet.getDataRange().getValues();
+  var hashedOld = hashPassword(oldPassword);
+  var hashedNew = hashPassword(newPassword);
+
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === username && data[i][1] === hashedOld) {
+      sheet.getRange(i + 1, 2).setValue(hashedNew);
+      return { success: true, message: 'Password berhasil diperbarui!' };
+    }
+  }
+  return { success: false, message: 'Password lama tidak sesuai.' };
+}
+
+// ==========================================
+// 5. DATA PENGGUNA (MANAGEMENT USER)
+// ==========================================
+
+function getAllUsers() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_USERS);
+  if (!sheet) return [];
+  
+  var data = sheet.getDataRange().getValues();
+  var usersList = [];
+  
+  for (var i = 1; i < data.length; i++) {
+    usersList.push({
+      row: i + 1, 
+      username: data[i][0],
+      role: data[i][2],
+      status: data[i][3],
+      createdAt: data[i][4] ? Utilities.formatDate(new Date(data[i][4]), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm") : '-'
+    });
+  }
+  return usersList;
+}
+
+function deleteUserServer(row) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_USERS);
+  
+  if (row <= 2) return { success: false, message: 'Admin utama sistem tidak dapat dihapus!' };
+  
+  sheet.deleteRow(row);
+  return { success: true, message: 'User berhasil dihapus.' };
+}
+
+// Konstanta Tambahan untuk Timeline
+const SHEET_TIMELINE = 'Timeline_Audit';
+
+// Fungsi Update Timeline Server (Mendukung Ganti File)
+function updateTimelineServer(formData, fileData) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Timeline_Audit');
+  
+  if (!sheet) {
+    return { success: false, message: 'Database Timeline tidak ditemukan!' };
+  }
+  
+  var row = parseInt(formData.row);
+  if (!row || row < 2) {
+    return { success: false, message: 'Baris data tidak valid!' };
+  }
+  
+  // Update data teks standar
+  sheet.getRange(row, 2).setValue(formData.name);
+  sheet.getRange(row, 3).setValue(formData.bulan);
+  sheet.getRange(row, 4).setValue(formData.tahun);
+  sheet.getRange(row, 5).setValue(formData.auditor);
+  sheet.getRange(row, 6).setValue(formData.status);
+  
+  // Jika user meng-upload file baru saat edit, upload ke Drive & perbarui Kolom G dan H
+  if (fileData && fileData.base64) {
+    var uploadRes = uploadFileToDrive(fileData);
+    if (uploadRes.success) {
+      sheet.getRange(row, 7).setValue(uploadRes.url);      // Kolom G: File URL
+      sheet.getRange(row, 8).setValue(uploadRes.mimeType); // Kolom H: Mime Type
+    } else {
+      return { success: false, message: 'Gagal mengupload file baru: ' + uploadRes.errorMsg };
+    }
+  }
+  
+  return { success: true, message: 'Jadwal audit berhasil diperbarui!' };
+}
+
+// 1. Upload ke Drive (Pakai Base64 agar kuat kirim file besar)
+function uploadFileToDrive(fileData) {
+  try {
+    var decoded = Utilities.base64Decode(fileData.base64);
+    var blob = Utilities.newBlob(decoded, fileData.mimeType, fileData.filename);
+    
+    var file = DriveApp.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    return {
+      success: true,
+      url: file.getUrl(),
+      mimeType: fileData.mimeType
+    };
+  } catch (error) {
+    // Tangkap error aslinya agar kita tahu salahnya di mana
+    return { success: false, errorMsg: error.toString() };
+  }
+}
+
+// 2. Simpan Jadwal
+function saveTimelineServerWithFile(formData, fileData) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Timeline_Audit');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('Timeline_Audit');
+    sheet.appendRow(['ID', 'Nama Cabang', 'Periode Bulan', 'Tahun', 'Auditor PIC', 'Status', 'File URL', 'Mime Type']);
+    sheet.setFrozenRows(1);
+  }
+  
+  var data = sheet.getDataRange().getValues();
+  
+  // Validasi Duplikat
+  for (var i = 1; i < data.length; i++) {
+    if (
+      String(data[i][1]).trim().toLowerCase() === String(formData.name).trim().toLowerCase() &&
+      String(data[i][2]).trim().toLowerCase() === String(formData.bulan).trim().toLowerCase() &&
+      String(data[i][3]).trim() === String(formData.tahun).trim()
+    ) {
+      return { success: false, message: 'Jadwal ' + formData.name + ' bulan ' + formData.bulan + ' sudah ada!' };
+    }
+  }
+  
+  var fileUrl = '';
+  var mimeType = '';
+  
+  // JIKA ADA FILE, UPLOAD DULU
+  if (fileData && fileData.base64) {
+    var uploadRes = uploadFileToDrive(fileData);
+    
+    if (uploadRes.success) {
+      fileUrl = uploadRes.url;
+      mimeType = uploadRes.mimeType;
+    } else {
+      // JIKA GAGAL UPLOAD, BATALKAN SIMPAN JADWAL & MUNCULKAN ALERT ERROR!
+      return { success: false, message: 'Gagal simpan file ke Drive! Pesan Error: ' + uploadRes.errorMsg };
+    }
+  }
+  
+  var nextId = sheet.getLastRow();
+  
+  sheet.appendRow([
+    nextId, formData.name, formData.bulan, formData.tahun, 
+    formData.auditor, formData.status, fileUrl, mimeType
+  ]);
+  
+  return { success: true, message: 'Jadwal dan file berhasil disimpan!' };
+}
+
+// Update getTimelineDataServer untuk mengambil Mime Type (Kolom ke-8)
+function getTimelineDataServer() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Timeline_Audit');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('Timeline_Audit');
+    sheet.appendRow(['ID', 'Nama Cabang', 'Periode Bulan', 'Tahun', 'Auditor PIC', 'Status', 'File URL', 'Mime Type']);
+    sheet.setFrozenRows(1);
+    return [];
+  }
+  
+  var data = sheet.getDataRange().getValues();
+  var timelineList = [];
+  
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][1]) {
+      timelineList.push({
+        row: i + 1,
+        id: data[i][0],
+        name: data[i][1],
+        bulan: data[i][2],
+        tahun: data[i][3],
+        auditor: data[i][4],
+        status: data[i][5],
+        fileUrl: data[i][6] || '',
+        mimeType: data[i][7] || ''
+      });
+    }
+  }
+  
+  return timelineList;
+}
+
+// Paksa Google minta izin FULL (Create & Delete File)
+function mintaIzinGooglePalingAmpuh() {
+  // Bikin file dummy biar sistem Google sadar kita butuh izin bikin file
+  var fileTukangPancing = DriveApp.createFile("Pancingan.txt", "Ini cuma buat mancing izin bos");
+  
+  // Langsung masukin tong sampah biar Google Drive lu ga nyampah
+  fileTukangPancing.setTrashed(true); 
+  
+  SpreadsheetApp.getActiveSpreadsheet();
+  Logger.log("Izin FULL CREATE FILE sukses bos!");
+}
+
+// Fungsi untuk menghapus baris jadwal di Google Sheets berdasarkan nomor baris
+function deleteTimelineServer(row) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Timeline_Audit');
+  
+  if (!sheet) {
+    return { success: false, message: 'Database Timeline tidak ditemukan!' };
+  }
+  
+  var rowNum = parseInt(row);
+  if (!rowNum || rowNum < 2) {
+    return { success: false, message: 'Baris data tidak valid untuk dihapus.' };
+  }
+  
+  // Hapus baris dari spreadsheet
+  sheet.deleteRow(rowNum);
+  
+  return { success: true, message: 'Jadwal audit berhasil dihapus!' };
+}
+
+// ==========================================
+// MODUL PEMINJAMAN DOKUMEN
+// ==========================================
+
+// 1. Ambil Data Peminjaman dari Sheet Peminjaman_Dokumen
+function getPeminjamanDataServer() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Peminjaman_Dokumen');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('Peminjaman_Dokumen');
+    sheet.appendRow(['ID Transaksi', 'Jenis Dokumen', 'Cabang Terkait', 'Nama Peminjam', 'Tgl Pinjam', 'Tgl Kembali', 'Status', 'File URL', 'Mime Type']);
+    sheet.setFrozenRows(1);
+    return [];
+  }
+  
+  var data = sheet.getDataRange().getValues();
+  var list = [];
+  
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0]) {
+      list.push({
+        row: i + 1,
+        id: data[i][0],
+        type: data[i][1],
+        branch: data[i][2],
+        borrower: data[i][3],
+        datePinjam: data[i][4] ? Utilities.formatDate(new Date(data[i][4]), Session.getScriptTimeZone(), "dd/MM/yyyy") : '-',
+        dateKembali: data[i][5] ? Utilities.formatDate(new Date(data[i][5]), Session.getScriptTimeZone(), "dd/MM/yyyy") : '-',
+        status: data[i][6],
+        fileUrl: data[i][7] || '',
+        mimeType: data[i][8] || ''
+      });
+    }
+  }
+  return list;
+}
+
+// 2. Simpan Data Peminjaman Baru (Termasuk Upload File)
+function savePeminjamanServer(formData, fileData) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Peminjaman_Dokumen');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('Peminjaman_Dokumen');
+    sheet.appendRow(['ID Transaksi', 'Jenis Dokumen', 'Cabang Terkait', 'Nama Peminjam', 'Tgl Pinjam', 'Tgl Kembali', 'Status', 'File URL', 'Mime Type']);
+    sheet.setFrozenRows(1);
+  }
+  
+  var fileUrl = '';
+  var mimeType = '';
+  if (fileData && fileData.base64) {
+    var uploadRes = uploadFileToDrive(fileData);
+    if (uploadRes.success) {
+      fileUrl = uploadRes.url;
+      mimeType = uploadRes.mimeType;
+    } else {
+      return { success: false, message: 'Gagal upload file: ' + uploadRes.errorMsg };
+    }
+  }
+  
+  var autoId = 'TRX-' + String(sheet.getLastRow()).padStart(3, '0');
+  
+  sheet.appendRow([
+    autoId,
+    formData.type,
+    formData.branch,
+    formData.borrower,
+    formData.datePinjam,
+    formData.dateKembali || '-',
+    formData.status,
+    fileUrl,
+    mimeType
+  ]);
+  
+  return { success: true, message: 'Data peminjaman dokumen berhasil disimpan!' };
+}
+
+// 3. Update Data Peminjaman (Termasuk Ganti File)
+function updatePeminjamanServer(formData, fileData) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Peminjaman_Dokumen');
+  var row = parseInt(formData.row);
+  
+  if (!sheet || !row || row < 2) return { success: false, message: 'Data tidak valid!' };
+  
+  sheet.getRange(row, 2).setValue(formData.type);
+  sheet.getRange(row, 3).setValue(formData.branch);
+  sheet.getRange(row, 4).setValue(formData.borrower);
+  sheet.getRange(row, 5).setValue(formData.datePinjam);
+  sheet.getRange(row, 6).setValue(formData.dateKembali || '-');
+  sheet.getRange(row, 7).setValue(formData.status);
+  
+  if (fileData && fileData.base64) {
+    var uploadRes = uploadFileToDrive(fileData);
+    if (uploadRes.success) {
+      sheet.getRange(row, 8).setValue(uploadRes.url);
+      sheet.getRange(row, 9).setValue(uploadRes.mimeType);
+    } else {
+      return { success: false, message: 'Gagal upload file baru: ' + uploadRes.errorMsg };
+    }
+  }
+  
+  return { success: true, message: 'Data peminjaman berhasil diperbarui!' };
+}
+
+// 4. Hapus Data Peminjaman
+function deletePeminjamanServer(row) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Peminjaman_Dokumen');
+  var rowNum = parseInt(row);
+  
+  if (!sheet || !rowNum || rowNum < 2) return { success: false, message: 'Data tidak valid!' };
+  
+  sheet.deleteRow(rowNum);
+  return { success: true, message: 'Data peminjaman berhasil dihapus!' };
+}
+
+// ==========================================
+// MODUL REPORT AUDIT
+// ==========================================
+
+// 1. Ambil Data Report Audit dari Sheet Report_Audit
+function getReportAuditDataServer() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Report_Audit');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('Report_Audit');
+    sheet.appendRow(['No Dokumen', 'Nama Cabang', 'Tgl Upload', 'Tgl Closing Audit', 'Ringkasan Temuan', 'File URL', 'Mime Type']);
+    sheet.setFrozenRows(1);
+    return [];
+  }
+  
+  var data = sheet.getDataRange().getValues();
+  var list = [];
+  
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0]) {
+      list.push({
+        row: i + 1,
+        docNo: data[i][0],
+        branch: data[i][1],
+        dateUpload: data[i][2] ? Utilities.formatDate(new Date(data[i][2]), Session.getScriptTimeZone(), "dd/MM/yyyy") : '-',
+        dateClosing: data[i][3] ? Utilities.formatDate(new Date(data[i][3]), Session.getScriptTimeZone(), "dd/MM/yyyy") : '-',
+        summary: data[i][4] || '',
+        fileUrl: data[i][5] || '',
+        mimeType: data[i][6] || ''
+      });
+    }
+  }
+  return list;
+}
+
+// 2. Simpan Data Report Audit Baru
+function saveReportAuditServer(formData, fileData) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Report_Audit');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('Report_Audit');
+    sheet.appendRow(['No Dokumen', 'Nama Cabang', 'Tgl Upload', 'Tgl Closing Audit', 'Ringkasan Temuan', 'File URL', 'Mime Type']);
+    sheet.setFrozenRows(1);
+  }
+  
+  var fileUrl = '';
+  var mimeType = '';
+  if (fileData && fileData.base64) {
+    var uploadRes = uploadFileToDrive(fileData);
+    if (uploadRes.success) {
+      fileUrl = uploadRes.url;
+      mimeType = uploadRes.mimeType;
+    } else {
+      return { success: false, message: 'Gagal upload file: ' + uploadRes.errorMsg };
+    }
+  }
+  
+  var autoDocNo = 'RA/' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yy") + '/' + String(sheet.getLastRow()).padStart(3, '0');
+  var todayFormatted = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd");
+  
+  sheet.appendRow([
+    autoDocNo,
+    formData.branch,
+    todayFormatted, // Tanggal Upload Dikunci (Sistem)
+    formData.dateClosing,
+    formData.summary,
+    fileUrl,
+    mimeType
+  ]);
+  
+  return { success: true, message: 'Report Audit berhasil disimpan!' };
+}
+
+// 3. Update Data Report Audit
+function updateReportAuditServer(formData, fileData) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Report_Audit');
+  var row = parseInt(formData.row);
+  
+  if (!sheet || !row || row < 2) return { success: false, message: 'Data tidak valid!' };
+  
+  sheet.getRange(row, 2).setValue(formData.branch);
+  sheet.getRange(row, 4).setValue(formData.dateClosing);
+  sheet.getRange(row, 5).setValue(formData.summary);
+  
+  if (fileData && fileData.base64) {
+    var uploadRes = uploadFileToDrive(fileData);
+    if (uploadRes.success) {
+      sheet.getRange(row, 6).setValue(uploadRes.url);
+      sheet.getRange(row, 7).setValue(uploadRes.mimeType);
+    } else {
+      return { success: false, message: 'Gagal upload file baru: ' + uploadRes.errorMsg };
+    }
+  }
+  
+  return { success: true, message: 'Report Audit berhasil diperbarui!' };
+}
+
+// 4. Hapus Data Report Audit
+function deleteReportAuditServer(row) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Report_Audit');
+  var rowNum = parseInt(row);
+  
+  if (!sheet || !rowNum || rowNum < 2) return { success: false, message: 'Data tidak valid!' };
+  
+  sheet.deleteRow(rowNum);
+  return { success: true, message: 'Report Audit berhasil dihapus!' };
+}
+
